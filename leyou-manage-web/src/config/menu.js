@@ -7,7 +7,7 @@ const menus = [
   },
   {
     action: "apps",
-    title: "商品管理222",
+    title: "商品管理",
     path:"/item",
     items: [
       { title: "分类管理", path: "/category" },

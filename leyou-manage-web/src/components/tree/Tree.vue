@@ -15,7 +15,6 @@
 
 <script>
   import TreeItem from './TreeItem';
-
   export default {
     name: "vTree",
     props: {
