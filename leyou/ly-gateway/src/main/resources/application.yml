@@ -5,6 +5,28 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true  #允许预检请求
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://manage.leyou.com"  # 允许哪些域来访问
+              - "http://manage.leyou.com:9001"  # 允许哪些域来访问
+              - "http://www.leyou.com"  # 允许哪些域来访问
+              - "http://www.leyou.com:9002"  # 允许哪些域来访问
+              - "http://localhost:9001"  # 允许哪些域来访问
+              - "http://localhost:9002"  # 允许哪些域来访问
+            allowedHeaders:  # 运行的请求头信息
+              - "*"
+            allowCredentials: true  #允许携带cookie
+            maxAge: 360000    #预检请求的有效期： 1个小时
+            allowedMethods:  # 允许哪些方法跨域
+              - GET
+              - POST
+              - DELETE
+              - PUT
+              - OPTIONS
+              - HEAD
       routes:
         - id: item-service   # 路由id,可以随意写
           # 代理的服务地址；lb表示负载均衡(从eureka中获取具体服务)

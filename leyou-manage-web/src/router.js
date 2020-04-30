@@ -27,6 +27,8 @@ export default new Router({
         // 第一个参数：路径hash值，第二个参数：组件的位置，相对于src/views，第三个参数是组件名称
         route("/item/category",'/item/Category',"Category"),
         route("/item/brand",'/item/Brand',"Brand"),
+        // 定义一个我们自己的路由
+        route("/item/mybrand",'/item/MyBrand',"MyBrand"),
         route("/item/list",'/item/Goods',"Goods"),
         route("/item/specification",'/item/specification/Index',"Specification"),
         route("/user/statistics",'/item/Statistics',"Statistics"),
