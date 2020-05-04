@@ -36,6 +36,7 @@ public enum ExceptionEnum {
     SEND_MESSAGE_ERROR(500, "短信发送失败！"),
     INVALID_ORDER_STATUS(500, "订单状态不正确！"),
     STOCK_NOT_ENOUGH_ERROR(500, "库存不足！"),
+    UPLOAD_FILE_ERROR(400, "亲，图片上传的类型不对哦！"),
 
     UNAUTHORIZED(401, "登录失效或未登录！");
 

@@ -37,6 +37,12 @@ spring:
           filters:
             # 表示过滤1个路径，2表示两个路径，以此类推
             - StripPrefix=2
+        - id: upload-service   # 路由id,可以随意写
+          uri: lb://upload-service
+          predicates:
+            - Path=/api/upload/**
+          filters:
+            - StripPrefix=2
 eureka:
   client:
     service-url:

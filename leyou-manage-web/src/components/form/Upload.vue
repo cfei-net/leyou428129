@@ -145,7 +145,7 @@
         this.$http.post(uploadUrl, formData, {headers: {'Content-Type': 'multipart/form-data'}})
           .then(resp => {
             console.log(resp);
-            if (resp.status == '200') {
+            if (resp.status == '201') {
               // 获取文件路径
               const fileUrl = resp.data || uploadUrl + "/" + filename;
               // 判断是多文件还是单文件

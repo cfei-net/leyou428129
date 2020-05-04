@@ -14,6 +14,7 @@
         <module>ly-api</module>
         <module>ly-common</module>
         <module>ly-item</module>
+        <module>ly-upload</module>
     </modules>
     <!--打包方式： 聚合工程-->
     <packaging>pom</packaging>
