@@ -12,6 +12,7 @@ mybatis:
   type-aliases-package: com.leyou.item.entity
   configuration:
     map-underscore-to-camel-case: true  #驼峰映射
+  mapper-locations: mapper/*.xml
 eureka:
   client:
     service-url:

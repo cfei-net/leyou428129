@@ -30,7 +30,7 @@
             <template v-slot:items="props">
                 <td>{{ props.item.id }}</td>
                 <td class="text-xs-right">{{ props.item.name }}</td>
-                <td class="text-xs-right">{{ props.item.image }}</td>
+                <td class="text-xs-right"><img v-bind:src="props.item.image" /></td>
                 <td class="text-xs-right">{{ props.item.letter }}</td>
                 <td class="text-xs-center">
                     <v-btn color="error">删除</v-btn>
@@ -68,7 +68,6 @@
             pagination: {
                 deep: true,
                 handler() {
-                    console.log('小飞飞真的好纯啊！');
                     this.getBrands();
                 }
             }
@@ -88,30 +87,20 @@
                             desc: this.pagination.descending
                         }
                     }).then(res=>{
+                        // 结束特效
+                        this.loading = false;
                         // 成功的回调
                         console.log(res)
+                        // 跟数据赋值
+                        this.brands = res.data.items;
+                        this.totalBrand = res.data.total;
                     }).catch(err=>{
                         // 异常回调
                         console.log(err)
-
+                        // 结束特效
+                        this.loading = false;
                     })
-
-
-
-
-                    // 结束特效
-                    this.loading = false;
-                    // 给列表赋值
-                    this.brands = [
-                        {id: 2032, name: "OPPO", image: "1.jpg", letter: "O"},
-                        {id: 2033, name: "飞利浦", image: "2.jpg", letter: "F"},
-                        {id: 2034, name: "华为", image: "3.jpg", letter: "H"},
-                        {id: 2036, name: "酷派", image: "4.jpg", letter: "K"},
-                        {id: 2037, name: "魅族", image: "5.jpg", letter: "M"}
-                    ];
-                    // 给总记录数赋值
-                    this.totalBrand = 20
-                }, 1000)// 一秒钟关闭特效
+                }, 500)// 500毫秒关闭特效
             }
         }
     }
