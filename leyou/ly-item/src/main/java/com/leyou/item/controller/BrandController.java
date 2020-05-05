@@ -52,5 +52,17 @@ public class BrandController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    /**
+     * 根据id查询品牌信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<BrandDTO> findBrandById(@PathVariable("id") Long id){
+        BrandDTO brandDTO = brandService.findBrandById(id);
+        return ResponseEntity.ok(brandDTO);
+    }
+
+
 
 }

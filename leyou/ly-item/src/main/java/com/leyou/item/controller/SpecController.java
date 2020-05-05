@@ -1,6 +1,7 @@
 package com.leyou.item.controller;
 
 import com.leyou.item.entity.SpecGroup;
+import com.leyou.item.entity.SpecParam;
 import com.leyou.item.service.SpecService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +27,23 @@ public class SpecController {
     public ResponseEntity<List<SpecGroup>> findSpecGroupByCategoryId(@RequestParam("id") Long cid){
         List<SpecGroup> specGroupList = specService.findSpecGroupByCategoryId(cid);
         return ResponseEntity.ok(specGroupList);
+    }
+
+    /**
+     * 查询规格参数：多个条件
+     *
+     * @param gid       规格组的id
+     * @param cid       分类的id
+     * @param searching 是否是搜索过滤参数
+     * @return
+     */
+    @GetMapping("/spec/params")
+    public ResponseEntity<List<SpecParam>> findSpecParamByGroupId(
+            @RequestParam(value = "gid", required = false) Long gid,
+            @RequestParam(value = "cid", required = false) Long cid,
+            @RequestParam(value = "searching", required = false) Boolean searching
+    ) {
+        List<SpecParam> specParamList = specService.findSpecParamByGroupId(gid, cid, searching);
+        return ResponseEntity.ok(specParamList);
     }
 }

@@ -67,4 +67,17 @@ public class BrandService {
             throw new LyException(ExceptionEnum.INSERT_OPERATION_FAIL);
         }
     }
+
+    /**
+     * 根据id查询品牌
+     * @param id
+     * @return
+     */
+    public BrandDTO findBrandById(Long id) {
+        Brand brand = brandMapper.selectByPrimaryKey(id); // 根据主键查询品牌
+        if(brand==null){
+            throw new LyException(ExceptionEnum.BRAND_NOT_FOUND);
+        }
+        return BeanHelper.copyProperties(brand, BrandDTO.class);
+    }
 }

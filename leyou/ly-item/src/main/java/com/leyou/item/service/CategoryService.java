@@ -35,4 +35,19 @@ public class CategoryService {
         // 把对象转成dto
         return BeanHelper.copyWithCollection(categoryList, CategoryDTO.class);
     }
+
+    /**
+     * 根据分类的id集合查询分类列表信息
+     * @param ids
+     * @return
+     */
+    public List<CategoryDTO> findCategoryListByIds(List<Long> ids) {
+        List<Category> categories = categoryMapper.selectByIdList(ids);
+        // 判断
+        if(CollectionUtils.isEmpty(categories)){
+            throw new LyException(ExceptionEnum.CATEGORY_NOT_FOUND);
+        }
+        // 把对象转成dto
+        return BeanHelper.copyWithCollection(categories, CategoryDTO.class);
+    }
 }

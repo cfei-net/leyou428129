@@ -1,0 +1,37 @@
+package com.leyou.item.controller;
+
+import com.leyou.common.pojo.PageResult;
+import com.leyou.item.dto.SpuDTO;
+import com.leyou.item.service.GoodsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class GoodsController {
+
+    @Autowired
+    private GoodsService goodsService;
+
+    /**
+     * 根据条件分页查询商品：spu
+     * @param key           搜索条件
+     * @param saleable      是否上下架
+     * @param page          当前页
+     * @param rows          页大小
+     * @return              当前页的分页数据
+     */
+    @GetMapping("/spu/page")
+    public ResponseEntity<PageResult<SpuDTO>> findSpuByPage(
+            @RequestParam(value="key",required = false) String key,
+            @RequestParam(value="saleable",required = false) Boolean saleable,
+            @RequestParam(value="page",defaultValue = "1") Integer page,
+            @RequestParam(value="rows",defaultValue = "5") Integer rows
+    ){
+        PageResult<SpuDTO> pageResult = goodsService.findSpuByPage(key, saleable, page, rows);
+        return ResponseEntity.ok(pageResult);
+    }
+
+}

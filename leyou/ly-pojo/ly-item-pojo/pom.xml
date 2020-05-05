@@ -11,5 +11,12 @@
 
     <artifactId>ly-item-pojo</artifactId>
 
+    <dependencies>
+        <!--spring默认处理json使用的工具包-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
