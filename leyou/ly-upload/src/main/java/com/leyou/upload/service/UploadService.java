@@ -1,9 +1,18 @@
 package com.leyou.upload.service;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.common.utils.BinaryUtil;
+import com.aliyun.oss.model.MatchMode;
+import com.aliyun.oss.model.PolicyConditions;
 import com.leyou.common.constants.LyConstants;
 import com.leyou.common.exception.LyException;
 import com.leyou.common.exception.enums.ExceptionEnum;
+import com.leyou.upload.config.OSSProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.codehaus.jettison.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,10 +20,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+@Slf4j
 @Service
 public class UploadService {
 
@@ -58,5 +66,46 @@ public class UploadService {
 
         // 返回图片的访问路径:  http://localhost/brand-logo/1.jpg
         return LyConstants.IMAGE_URL + imageName;
+    }
+
+
+    @Autowired
+    private OSS ossClient;
+
+    @Autowired
+    private OSSProperties prop;
+
+    /**
+     * 上传图片到阿里云
+     * @return
+     */
+    public Map<String, String> signature() {
+        try {
+            long expireTime = prop.getExpireTime(); // 过期时间
+            long expireEndTime = System.currentTimeMillis() + expireTime * 1000;
+            Date expiration = new Date(expireEndTime);
+            PolicyConditions policyConds = new PolicyConditions();
+            policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE, 0, prop.getMaxFileSize());// 图片上传大小
+            policyConds.addConditionItem(MatchMode.StartWith, PolicyConditions.COND_KEY, prop.getDir()); //上传到那个目录
+
+            String postPolicy = ossClient.generatePostPolicy(expiration, policyConds);
+            byte[] binaryData = postPolicy.getBytes("utf-8");
+            String encodedPolicy = BinaryUtil.toBase64String(binaryData);
+            String postSignature = ossClient.calculatePostSignature(postPolicy);
+
+            Map<String, String> respMap = new LinkedHashMap<String, String>();
+            respMap.put("accessId", prop.getAccessKeyId()); // 改成和前端一样的就可以
+            respMap.put("policy", encodedPolicy);
+            respMap.put("signature", postSignature);
+            respMap.put("dir", prop.getDir());
+            respMap.put("host", prop.getHost()); // 图片上传的路径
+            respMap.put("expire", String.valueOf(expireEndTime)); // 这里要注意：毫秒
+            return respMap;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("【图片微服务】获取阿里云图片上传签名失败：{}", e.getMessage());
+            throw new LyException(ExceptionEnum.GET_OSS_SIGNATURE_ERROR);
+        }
     }
 }

@@ -13,3 +13,16 @@ eureka:
   instance:
     prefer-ip-address: true
     ip-address: 127.0.0.1
+
+ly:
+  oss:
+    accessKeyId: LTAI4GB3j1JLLuPe7CKR9Gf4
+    accessKeySecret: 6JLb0N2FmLLQuiZMTRxM8Cl4dK14zD
+    # 我们隐藏阿里云的上传路径，把它改为我们自己leyou的
+    #host: http://ly-upload-129feifei.oss-cn-shenzhen.aliyuncs.com # 访问oss的域名，很重要bucket + endpoint
+    host: http://image.leyou.com
+    bucket: ly-upload-129feifei
+    endpoint: oss-cn-shenzhen.aliyuncs.com # 你的服务的端点，不一定跟我一样
+    dir: "202005/" # 保存到bucket的某个子目录
+    expireTime: 20 # 过期时间，单位是S
+    maxFileSize: 5242880 #文件大小限制，这里是5M

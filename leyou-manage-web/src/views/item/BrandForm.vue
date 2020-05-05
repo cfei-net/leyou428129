@@ -28,8 +28,9 @@
               <span class="subheading font-weight-thin">品牌LOGO：</span>
             </v-flex>
             <v-flex>
+              <!-- 改造成上传到阿里云： url： 获取签名的    need-signature：上传到阿里云的标记-->
               <v-upload v-model="brand.image" :multiple="false" :pic-width="250" :pic-height="90"
-                        url="/upload/image"/>
+                        url="/upload/signature" need-signature="true"/>
             </v-flex>
           </v-layout>
         </v-container>

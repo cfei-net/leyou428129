@@ -124,7 +124,7 @@
         if (this.needSignature) {
           // 上传到阿里，进行签名，把接收到的url作为签名接口地址
           const resp = await this.$http.loadData(this.url);
-          // 判断接口返回的签名时间是否超时
+          // 判断接口返回的签名时间是否超时：  前端是毫秒
           if (resp.expire < new Date().getTime()) {
             this.$message.error('请求超时!');
             return;
@@ -145,7 +145,7 @@
         this.$http.post(uploadUrl, formData, {headers: {'Content-Type': 'multipart/form-data'}})
           .then(resp => {
             console.log(resp);
-            if (resp.status == '201') {
+            if (resp.status == '201' || resp.status == '200') {
               // 获取文件路径
               const fileUrl = resp.data || uploadUrl + "/" + filename;
               // 判断是多文件还是单文件

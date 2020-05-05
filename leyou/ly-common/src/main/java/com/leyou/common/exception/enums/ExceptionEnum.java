@@ -37,6 +37,7 @@ public enum ExceptionEnum {
     INVALID_ORDER_STATUS(500, "订单状态不正确！"),
     STOCK_NOT_ENOUGH_ERROR(500, "库存不足！"),
     UPLOAD_FILE_ERROR(400, "亲，图片上传的类型不对哦！"),
+    GET_OSS_SIGNATURE_ERROR(400, "获取图片上传签名失败！"),
 
     UNAUTHORIZED(401, "登录失效或未登录！");
 
