@@ -154,4 +154,24 @@ public class GoodsService {
             throw new LyException(ExceptionEnum.INSERT_OPERATION_FAIL);
         }
     }
+
+    /**
+     * 更新商品的上下架功能
+     * @param spuId     商品的id
+     * @param saleable  是否上下架：  true:上架； false： 下架
+     * @return          没有返回值
+     */
+    public void updateGoodsSaleable(Long spuId, Boolean saleable) {
+        /**
+         * updateByPrimaryKeySelective: 根据主键更新对象中非空的字段
+         * update tb_spu set saleable = ? where id = ?
+         */
+        Spu record = new Spu();
+        record.setId(spuId);
+        record.setSaleable(saleable);
+        int count = spuMapper.updateByPrimaryKeySelective(record);
+        if (count != 1){
+            throw new LyException(ExceptionEnum.UPDATE_OPERATION_FAIL);
+        }
+    }
 }

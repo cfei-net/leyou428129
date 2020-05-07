@@ -44,4 +44,19 @@ public class GoodsController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    /**
+     * 更新商品的上下架功能
+     * @param spuId     商品的id
+     * @param saleable  是否上下架：  true:上架； false： 下架
+     * @return          没有返回值
+     */
+    @PutMapping("/spu/saleable")
+    public ResponseEntity<Void> updateGoodsSaleable(
+            @RequestParam("id") Long spuId,
+            @RequestParam("saleable") Boolean saleable
+    ){
+        goodsService.updateGoodsSaleable(spuId, saleable);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }
