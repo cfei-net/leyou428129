@@ -4,10 +4,9 @@ import com.leyou.common.pojo.PageResult;
 import com.leyou.item.dto.SpuDTO;
 import com.leyou.item.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class GoodsController {
@@ -32,6 +31,17 @@ public class GoodsController {
     ){
         PageResult<SpuDTO> pageResult = goodsService.findSpuByPage(key, saleable, page, rows);
         return ResponseEntity.ok(pageResult);
+    }
+
+    /**
+     * 保存商品
+     * @param spuDTO
+     * @return
+     */
+    @PostMapping("/goods")
+    public ResponseEntity<Void> saveGoods(@RequestBody SpuDTO spuDTO){
+        goodsService.saveGoods(spuDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

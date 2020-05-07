@@ -1,6 +1,8 @@
 package com.leyou.item.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.leyou.item.entity.Sku;
+import com.leyou.item.entity.SpuDetail;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -20,6 +22,9 @@ public class SpuDTO {
     private Date createTime;// 创建时间
     private String categoryName; // 商品分类名称拼接
     private String brandName;// 品牌名称
+
+    private List<Sku> skus;   // 这个是用于接收页面传过来的Sku的列表数据
+    private SpuDetail spuDetail; // 这个是用来接收商品的详情数据的
 
     /**
      * 方便同时获取3级分类

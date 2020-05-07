@@ -64,5 +64,15 @@ public class BrandController {
     }
 
 
+    /**
+     * 根据分类id查询品牌列表
+     * @param cid   分类id
+     * @return      品牌的DTO列表
+     */
+    @GetMapping("/of/category")
+    public ResponseEntity<List<BrandDTO>> findBrandListByCategoryId(@RequestParam("id") Long cid){
+        List<BrandDTO> brandDTOS = brandService.findBrandListByCategoryId(cid);
+        return ResponseEntity.ok(brandDTOS);
+    }
 
 }

@@ -9,7 +9,9 @@ import com.leyou.common.utils.BeanHelper;
 import com.leyou.item.dto.BrandDTO;
 import com.leyou.item.dto.CategoryDTO;
 import com.leyou.item.dto.SpuDTO;
+import com.leyou.item.entity.Sku;
 import com.leyou.item.entity.Spu;
+import com.leyou.item.entity.SpuDetail;
 import com.leyou.item.mapper.SkuMapper;
 import com.leyou.item.mapper.SpuDetailMapper;
 import com.leyou.item.mapper.SpuMapper;
@@ -22,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,4 +115,43 @@ public class GoodsService {
         }
     }
 
+    /**
+     * 保存商品数据
+     * @param spuDTO
+     */
+    public void saveGoods(SpuDTO spuDTO) {
+        // 1、保存 Spu
+        // 1.1 先把DTO对象转成PO对象
+        Spu spu = BeanHelper.copyProperties(spuDTO, Spu.class);
+        spu.setSaleable(false);// 设置为下架
+        spu.setCreateTime(new Date());// 创建时间
+        // 1.2 保存Spu
+        int count = spuMapper.insertSelective(spu);//保存非空的数据
+        if(count != 1 ){
+            throw new LyException(ExceptionEnum.INSERT_OPERATION_FAIL);
+        }
+        // 1.3 当我们插入了spu，spu对象中有一个@KeySql注解，这个注解可以帮我们自动回填id
+        Long spuId = spu.getId();
+
+
+        // 2、保存 SpuDetail
+        SpuDetail spuDetail = spuDTO.getSpuDetail();
+        spuDetail.setSpuId(spuId); // spu的id
+        count = spuDetailMapper.insertSelective(spuDetail);
+        if(count != 1 ){
+            throw new LyException(ExceptionEnum.INSERT_OPERATION_FAIL);
+        }
+        // 3、保存Sku列表
+        List<Sku> skus = spuDTO.getSkus();
+        // 3.1 设置spu的id
+        skus.forEach(s -> {
+            s.setSpuId(spuId); // spu的ID
+            s.setCreateTime(new Date());
+        });
+        // 3.2 保存sku列表
+        count = skuMapper.insertList(skus); // 批量保存
+        if(count != skus.size()){
+            throw new LyException(ExceptionEnum.INSERT_OPERATION_FAIL);
+        }
+    }
 }
