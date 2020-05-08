@@ -2,11 +2,15 @@ package com.leyou.item.controller;
 
 import com.leyou.common.pojo.PageResult;
 import com.leyou.item.dto.SpuDTO;
+import com.leyou.item.entity.Sku;
+import com.leyou.item.entity.SpuDetail;
 import com.leyou.item.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class GoodsController {
@@ -57,6 +61,28 @@ public class GoodsController {
     ){
         goodsService.updateGoodsSaleable(spuId, saleable);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    /**
+     * 根据spu的id查询sku列表
+     * @param spuId
+     * @return
+     */
+    @GetMapping("/sku/of/spu")
+    public ResponseEntity<List<Sku>> findSkuBySpuID(@RequestParam("id") Long spuId){
+        List<Sku> skuList = goodsService.findSkuBySpuID(spuId);
+        return ResponseEntity.ok(skuList);
+    }
+
+    /**
+     * 根据spu的id查询spu详情
+     * @param spuId
+     * @return
+     */
+    @GetMapping("/spu/detail")
+    public ResponseEntity<SpuDetail> findSpuDetailBySpuID(@RequestParam("id") Long spuId){
+        SpuDetail spuDetail = goodsService.findSpuDetailBySpuID(spuId);
+        return ResponseEntity.ok(spuDetail);
     }
 
 }

@@ -174,4 +174,34 @@ public class GoodsService {
             throw new LyException(ExceptionEnum.UPDATE_OPERATION_FAIL);
         }
     }
+
+    /**
+     * 根据spu的id查询sku列表
+     * @param spuId
+     * @return
+     */
+    public List<Sku> findSkuBySpuID(Long spuId) {
+        // 拼装条件查询
+        Sku record = new Sku();
+        record.setSpuId(spuId);
+        List<Sku> skuList = skuMapper.select(record);
+        // 判空
+        if(CollectionUtils.isEmpty(skuList)){
+            throw new LyException(ExceptionEnum.GOODS_NOT_FOUND);
+        }
+        return skuList;
+    }
+
+    /**
+     * 根据spu的id查询spu详情
+     * @param spuId
+     * @return
+     */
+    public SpuDetail findSpuDetailBySpuID(Long spuId) {
+        SpuDetail spuDetail = spuDetailMapper.selectByPrimaryKey(spuId);
+        if(spuDetail == null){
+            throw new LyException(ExceptionEnum.GOODS_NOT_FOUND);
+        }
+        return spuDetail;
+    }
 }
