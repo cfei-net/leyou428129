@@ -35,8 +35,8 @@ public class Goods {
     @Field(type = FieldType.Text, analyzer = "ik_max_word")
     private String all; // 所有需要被搜索的信息，包含标题，分类，甚至品牌
 
-    private Long brandId;// 品牌id          ： 走默认值
-    private Long categoryId;// 商品3级分类id ： 走默认值
+    private Long brandId;// 品牌id          ： ES 走默认值
+    private Long categoryId;// 商品3级分类id ： ES 走默认值
 
     private Map<String, Object> specs;// 可搜索的规格参数，key是参数名，值是参数值
 
