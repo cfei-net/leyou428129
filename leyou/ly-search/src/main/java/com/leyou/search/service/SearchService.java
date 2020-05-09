@@ -5,6 +5,8 @@ import com.leyou.common.pojo.PageResult;
 import com.leyou.common.utils.BeanHelper;
 import com.leyou.common.utils.JsonUtils;
 import com.leyou.item.client.ItemClient;
+import com.leyou.item.dto.BrandDTO;
+import com.leyou.item.dto.CategoryDTO;
 import com.leyou.item.dto.SpuDTO;
 import com.leyou.item.entity.Sku;
 import com.leyou.item.entity.SpecParam;
@@ -19,6 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
@@ -211,4 +216,88 @@ public class SearchService {
                 .multiMatchQuery(request.getKey(), "spuName","all")// 参数一：搜索条件；  后面的可变参： 搜索的域
                 .operator(Operator.AND); // 把分词后的条件用 and链接
     }
+
+
+    /**
+     * 查询过滤参数
+     * @param request
+     * @return
+     */
+    public Map<String, List<?>> findQueryFilter(SearchRequest request) {
+        // 0、返回给前端的map： 有序的
+        Map<String, List<?>> filterMap = new LinkedHashMap<>();
+
+        // 1、搜索条件拼接
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
+        // 1.1 设置我们要返回的结果包含哪些对象
+        nativeSearchQueryBuilder.withSourceFilter(new FetchSourceFilter(new String[]{""},null));
+        // 1.2 设置分页查询条件:  spring的分页对象，必须要查询一条数据，否则查询不到数据
+        nativeSearchQueryBuilder.withPageable(PageRequest.of(0, 1));
+        // 1.3 设置查询条件
+        nativeSearchQueryBuilder.withQuery(handlerQueryParam(request));
+
+        // 2、设置聚合的参数
+        // 2.1 添加分类的聚合
+        String categoryAgg = "categoryAgg";
+        nativeSearchQueryBuilder.addAggregation(AggregationBuilders.terms(categoryAgg).field("categoryId"));
+        // 2.2 添加品牌的聚合
+        String brandAgg = "brandAgg";
+        nativeSearchQueryBuilder.addAggregation(AggregationBuilders.terms(brandAgg).field("brandId"));
+
+        // 3、发起聚合
+        AggregatedPage<Goods> goodsAgg = elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), Goods.class);
+
+        // 4、获取聚合的结果
+        Aggregations aggregations = goodsAgg.getAggregations();
+
+        // 5、获取分类的聚合结果
+        Terms categoryTerms = aggregations.get(categoryAgg);
+        handlerCategoryTerms(categoryTerms, filterMap);
+        // 6、获取品牌的聚合结果
+        Terms brandTerms = aggregations.get(brandAgg);
+        handlerBrandTerms(brandTerms, filterMap);
+
+        // 7、 TODO 规格参数聚合
+
+        return filterMap;
+    }
+
+    /**
+     * 把分类放入map返回
+     * @param categoryTerms
+     * @param filterMap
+     */
+    private void handlerCategoryTerms(Terms categoryTerms, Map<String, List<?>> filterMap) {
+        // 把分类的桶获取到
+        List<? extends Terms.Bucket> buckets = categoryTerms.getBuckets();
+        // 收集bucket中的key
+        List<Long> categoryIds = buckets.stream()
+                .map(Terms.Bucket::getKeyAsNumber) // 获取bucket中的key，并转成number
+                .map(Number::longValue) // 把number转成long
+                .collect(Collectors.toList());
+        // 通过远程调用批量查询分类信息
+        List<CategoryDTO> categoryList = itemClient.findCategoryListByIds(categoryIds);
+        // 封装到filterMap中
+        filterMap.put("分类", categoryList);
+    }
+
+    /**
+     * 把品牌放入map中返回
+     * @param brandTerms
+     * @param filterMap
+     */
+    private void handlerBrandTerms(Terms brandTerms, Map<String, List<?>> filterMap) {
+        // 把分类的桶获取到
+        List<? extends Terms.Bucket> buckets = brandTerms.getBuckets();
+        // 搜集品牌id
+        List<BrandDTO> brandList = buckets.stream().map(Terms.Bucket::getKeyAsNumber)// 提取key
+                .map(Number::longValue) // 把每个品牌的id了转成long
+                .map(itemClient::findBrandById) // 远程调用商品微服务查询品牌的信息
+                .collect(Collectors.toList());
+        // 放入filterMap中
+        filterMap.put("品牌", brandList);
+
+    }
+
+
 }

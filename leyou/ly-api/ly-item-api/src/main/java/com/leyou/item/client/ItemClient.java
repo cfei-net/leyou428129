@@ -1,6 +1,8 @@
 package com.leyou.item.client;
 
 import com.leyou.common.pojo.PageResult;
+import com.leyou.item.dto.BrandDTO;
+import com.leyou.item.dto.CategoryDTO;
 import com.leyou.item.dto.SpuDTO;
 import com.leyou.item.entity.Sku;
 import com.leyou.item.entity.SpecParam;
@@ -8,6 +10,7 @@ import com.leyou.item.entity.SpuDetail;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -67,4 +70,20 @@ public interface ItemClient {
             @RequestParam(value = "cid", required = false) Long cid,
             @RequestParam(value = "searching", required = false) Boolean searching
     );
+
+    /**
+     * 根据分类的id集合查询分类列表
+     * @param ids
+     * @return
+     */
+    @GetMapping("/category/list")
+    public List<CategoryDTO> findCategoryListByIds(@RequestParam("ids") List<Long> ids);
+
+
+    /**
+     * 讲道理我们应该写一个批量查询品牌接口：今天为了简便，使用这个来代替
+     */
+    @GetMapping("/brand/{id}")
+    public BrandDTO findBrandById(@PathVariable("id") Long id);
+
 }
