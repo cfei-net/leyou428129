@@ -760,10 +760,51 @@
     var vm = new Vue({
         el: "#searchApp",
         data: {
+            // 定义搜索条件的对象
+            queryGoodsParam: {
+                key: "", // 用户输入的查询条件
+                page: 1  //当前页
+            },
+            // 定义接收后台返回的数据
+            total: 0,      //总记录数
+            totalPage: 0, // 总页数
+            goodsList: [] // 返回的商品
         },
         // 为了有vue的代码提醒，我们安装一下vue，安装vue只是为了代码提醒
         created(){
-
+            // 1、接收url路径上的查询条件
+            let key = ly.getUrlParam("key");
+            // 1.1 判空 ： undefined
+            if(!key || key == '' || key == null){
+                alert("请输入搜索条件，不然滚蛋！");
+                return; // 不往下执行代码
+            }
+            // 2、给data的queryGoodsParam赋值
+            this.queryGoodsParam.key = key;
+            // 3、调用methods中的查询方法
+            this.queryGoods()
+        },
+        methods: {
+            queryGoods(){
+                // 向后台发起请求
+                ly.http.post("/search/page", this.queryGoodsParam)
+                    .then(res=>{
+                        console.log(res)
+                        this.total = res.data.total;
+                        this.totalPage = res.data.totalPage;
+                        // 把返回的结果的skus转成对象
+                        res.data.items.forEach(item => {
+                            // 把字符串转成对象
+                            item.skus = JSON.parse(item.skus)
+                            // 我们给返回的列表动态加入一个已经选择的sku
+                            item.selectedSku = item.skus[0]
+                        })
+                        this.goodsList = res.data.items;
+                    })
+                    .catch(err=>{
+                        console.log(err)
+                    })
+            }
         },
         components:{
             lyTop: () => import("./js/pages/top.js")

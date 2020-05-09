@@ -1,18 +1,30 @@
 package com.leyou.search.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.leyou.common.pojo.PageResult;
+import com.leyou.common.utils.BeanHelper;
 import com.leyou.common.utils.JsonUtils;
 import com.leyou.item.client.ItemClient;
 import com.leyou.item.dto.SpuDTO;
 import com.leyou.item.entity.Sku;
 import com.leyou.item.entity.SpecParam;
 import com.leyou.item.entity.SpuDetail;
+import com.leyou.search.dto.GoodsDTO;
+import com.leyou.search.dto.SearchRequest;
 import com.leyou.search.entity.Goods;
 import com.leyou.search.repository.SearchRepository;
+import com.leyou.search.utils.HighlightUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -152,5 +164,51 @@ public class SearchService {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    /**
+     * 根据条件分页搜索商品数据
+     * @param request 【SearchRequest】  封装搜索条件： 搜索条件和当前页
+     * @return  分页对象
+     */
+    public PageResult<GoodsDTO> findGoodsByPage(SearchRequest request) {
+        // 1、使用ES的原生搜索： 封装查询条件
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
+        // 1.1 设置我们要返回的结果包含哪些对象
+        nativeSearchQueryBuilder.withSourceFilter(new FetchSourceFilter(new String[]{"id","spuName","subTitle","skus"},null));
+        // 1.2 设置分页查询条件:  spring的分页对象，从0开始，意味着我们的当前页要减一； 0第一页；1第二页 ......
+        nativeSearchQueryBuilder.withPageable(PageRequest.of(request.getPage() -1, request.getSize()));
+        // 1.3 设置查询条件
+        nativeSearchQueryBuilder.withQuery(handlerQueryParam(request));
+        // 1.4 设置高亮搜索
+        HighlightUtils.highlightField(nativeSearchQueryBuilder, "spuName");
+
+        // 2、执行搜索
+        AggregatedPage<Goods> goodsAgg = elasticsearchTemplate.queryForPage(
+                nativeSearchQueryBuilder.build(), // 构建搜索条件
+                Goods.class, // 返回的实体类
+                HighlightUtils.highlightBody(Goods.class, "spuName") // 返回高亮的body
+        );
+
+        // 3、获取搜索的结果数据
+        // 3.1 总记录数
+        long totalElements = goodsAgg.getTotalElements();
+        // 3.2 总页数
+        int totalPages = goodsAgg.getTotalPages();
+        // 3.3 当前页数据
+        List<Goods> goodsList = goodsAgg.getContent();
+
+        // 4、封装结果返回: 把实体类转成DTO返回
+        return new PageResult<GoodsDTO>(
+                totalElements,
+                totalPages,
+                BeanHelper.copyWithCollection(goodsList, GoodsDTO.class)
+        );
+    }
+
+    private QueryBuilder handlerQueryParam(SearchRequest request) {
+        return QueryBuilders
+                .multiMatchQuery(request.getKey(), "spuName","all")// 参数一：搜索条件；  后面的可变参： 搜索的域
+                .operator(Operator.AND); // 把分词后的条件用 and链接
     }
 }
