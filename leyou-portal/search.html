@@ -118,7 +118,7 @@
         </div>
         <!--selector-->
         <div class="clearfix selector">
-            <div class="type-wrap" v-for="(v , k, index) in filterParams" :key="index" v-if="k !== '品牌'" v-show="index<6 || showMore">
+            <div class="type-wrap" v-for="(v , k, index) in newFiltersParams" :key="index" v-if="k !== '品牌'" v-show="index<6 || showMore">
                 <div class="fl key">{{k}}</div>
                 <div class="fl value">
                     <ul class="type-list">
@@ -192,7 +192,7 @@
                     <li class="yui3-u-1-5" v-for="(goods, index) in goodsList" :key="index">
                         <div class="list-wrap">
                             <div class="p-img">
-                                <a href="item.html" target="_blank">
+                                <a :href="'/item/' + goods.id +'.html'" target="_blank">
                                     <img :src="goods.selectedSku.image" height="200"/>
                                 </a>
                                 <ul class="skus">
@@ -388,10 +388,37 @@
             // 如果从url没有获取到page参数，我们给一个默认值： 1
             this.queryGoodsParam.page = page || 1;
 
+            // 6、接收过滤项参数
+            let searchStr = location.search
+            // 把这个url参数转成对象
+            let searchJson = ly.parse(searchStr.substr(1));
+            // 把searchJson给查询条件
+            this.queryGoodsParam = searchJson
+            // 判断filters
+            if(!this.queryGoodsParam.filters){
+                this.queryGoodsParam.filters = {}
+            }
+
             // 3、调用methods中的查询方法
             this.queryGoods()
             // 5、加载过滤项参数
             this.queryFilterParams()
+        },
+        computed: {
+            // 计算属性： 计算属性名称 与  data中属性的名称作用一样的，也可以在插入值表达式 去引用
+            // 计算属性： 必须还要有一个 return
+            newFiltersParams(){
+                const filterMap = {};
+                // ============================
+                // 把filterParmas中 集合大于一的放入新的map中
+                for (let key in this.filterParams){
+                    if(this.filterParams[key].length > 1){
+                        filterMap[key] = this.filterParams[key]
+                    }
+                }
+                // ============================
+                return filterMap;
+            }
         },
         watch: {
             "queryGoodsParam.page":{
@@ -399,6 +426,10 @@
                     //console.log(this.queryGoodsParam.page);
                     // 把对象转成url的参数类型
                     let params = ly.stringify(this.queryGoodsParam);
+                    // 去掉最后一个 & 符号
+                    if(params.endsWith("&")){
+                        params = params.substring(0,params.length-1);
+                    }
                     // 把page当前页页码放入地址栏，页面不刷新
                     history.replaceState(null, null, location.origin + location.pathname+"?" + params)
                     // 改变了当前页，调用分页查询： 页面会刷新

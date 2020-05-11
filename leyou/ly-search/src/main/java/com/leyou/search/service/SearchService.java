@@ -33,6 +33,7 @@ import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -227,20 +228,23 @@ public class SearchService {
 
         // 第二个条件： 过滤的条件
         Map<String, Object> filters = request.getFilters();
-        for (Map.Entry<String, Object> entry : filters.entrySet()) {
-            // key
-            String key = entry.getKey();
-            // value
-            Object value = entry.getValue();
-            // 拼接过滤
-            if("分类".equals(key)){
-                key = "categoryId";
-            }else if("品牌".equals(key)){
-                key = "brandId";
-            }else{
-                key = "specs." + key + ".keyword";
+        if(!CollectionUtils.isEmpty(filters)){
+            for (Map.Entry<String, Object> entry : filters.entrySet()) {
+                // key
+                String key = entry.getKey();
+                // value
+                Object value = entry.getValue();
+                // 拼接过滤
+                if("分类".equals(key)){
+                    key = "categoryId";
+                }else if("品牌".equals(key)){
+                    key = "brandId";
+                }else{
+                    key = "specs." + key + ".keyword";
+                }
+                boolQueryBuilder.filter(QueryBuilders.termQuery(key, value));
             }
-            boolQueryBuilder.filter(QueryBuilders.termQuery(key, value));
+
         }
 
         return boolQueryBuilder;
