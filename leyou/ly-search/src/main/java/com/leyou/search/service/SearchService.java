@@ -18,9 +18,11 @@ import com.leyou.search.repository.SearchRepository;
 import com.leyou.search.utils.HighlightUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -211,10 +213,37 @@ public class SearchService {
         );
     }
 
+    /**
+     * 查询条件
+     * @param request
+     * @return
+     */
     private QueryBuilder handlerQueryParam(SearchRequest request) {
-        return QueryBuilders
-                .multiMatchQuery(request.getKey(), "spuName","all")// 参数一：搜索条件；  后面的可变参： 搜索的域
-                .operator(Operator.AND); // 把分词后的条件用 and链接
+        // 布尔查询
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        // 第一个条件：原来的条件
+        boolQueryBuilder.must(QueryBuilders.multiMatchQuery(request.getKey(), "spuName","all").operator(Operator.AND));
+
+        // 第二个条件： 过滤的条件
+        Map<String, Object> filters = request.getFilters();
+        for (Map.Entry<String, Object> entry : filters.entrySet()) {
+            // key
+            String key = entry.getKey();
+            // value
+            Object value = entry.getValue();
+            // 拼接过滤
+            if("分类".equals(key)){
+                key = "categoryId";
+            }else if("品牌".equals(key)){
+                key = "brandId";
+            }else{
+                key = "specs." + key + ".keyword";
+            }
+            boolQueryBuilder.filter(QueryBuilders.termQuery(key, value));
+        }
+
+        return boolQueryBuilder;
     }
 
 
@@ -252,14 +281,66 @@ public class SearchService {
 
         // 5、获取分类的聚合结果
         Terms categoryTerms = aggregations.get(categoryAgg);
-        handlerCategoryTerms(categoryTerms, filterMap);
+        List<Long> categoryIds = handlerCategoryTerms(categoryTerms, filterMap);
         // 6、获取品牌的聚合结果
         Terms brandTerms = aggregations.get(brandAgg);
         handlerBrandTerms(brandTerms, filterMap);
 
-        // 7、 TODO 规格参数聚合
+        // 7、 规格参数聚合  :  依赖于分类的id
+        handlerSpecParamFilter(filterMap, handlerQueryParam(request), categoryIds);
+
 
         return filterMap;
+    }
+
+    /**
+     * 聚合规格参数
+     * @param filterMap
+     * @param queryBuilder
+     * @param categoryIds
+     */
+    private void handlerSpecParamFilter(Map<String, List<?>> filterMap, QueryBuilder queryBuilder, List<Long> categoryIds) {
+        for (Long cid : categoryIds) {
+            // 1、搜索条件拼接
+            NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
+            // 1.1 设置我们要返回的结果包含哪些对象
+            nativeSearchQueryBuilder.withSourceFilter(new FetchSourceFilter(new String[]{""},null));
+            // 1.2 设置分页查询条件:  spring的分页对象，必须要查询一条数据，否则查询不到数据
+            nativeSearchQueryBuilder.withPageable(PageRequest.of(0, 1));
+            // 1.3 设置查询条件
+            nativeSearchQueryBuilder.withQuery(queryBuilder);
+
+            // ============================================================================================
+            // 2、通过分类id查询规格参数
+            List<SpecParam> specParam = itemClient.findSpecParamByGroupId(null, cid, true);
+            // 3、迭代规格参数，拼接查询条件
+            for (SpecParam param : specParam) {
+                // 3.1 定义聚合结果的名称
+                String aggName = param.getName();
+                // 3.2 定义field的名称
+                String fieldName = "specs." + aggName + ".keyword";
+                // 3.3 添加聚合条件
+                nativeSearchQueryBuilder.addAggregation(AggregationBuilders.terms(aggName).field(fieldName));
+            }
+            // 4、发起查询
+            AggregatedPage<Goods> specParamAgg = elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), Goods.class);
+            // 5、取出规格参数的聚合结果
+            Aggregations aggregations = specParamAgg.getAggregations();
+            // 6、迭代规格参数，通过规格参数的名称取出每个聚合结果
+            for (SpecParam param : specParam) {
+                // 6.1 定义聚合结果的名称
+                String aggName = param.getName();
+                // 6.2 取出聚合结果
+                Terms specTerm = aggregations.get(aggName);
+                // 6.3 搜集结果
+                List<String> spceFilterParam = specTerm.getBuckets().stream()
+                        .map(Terms.Bucket::getKeyAsString)
+                        .filter(StringUtils::isNotBlank)
+                        .collect(Collectors.toList());
+                // 6.4 放入filterMap
+                filterMap.put(aggName, spceFilterParam);
+            }
+        }
     }
 
     /**
@@ -267,7 +348,7 @@ public class SearchService {
      * @param categoryTerms
      * @param filterMap
      */
-    private void handlerCategoryTerms(Terms categoryTerms, Map<String, List<?>> filterMap) {
+    private List<Long> handlerCategoryTerms(Terms categoryTerms, Map<String, List<?>> filterMap) {
         // 把分类的桶获取到
         List<? extends Terms.Bucket> buckets = categoryTerms.getBuckets();
         // 收集bucket中的key
@@ -279,6 +360,8 @@ public class SearchService {
         List<CategoryDTO> categoryList = itemClient.findCategoryListByIds(categoryIds);
         // 封装到filterMap中
         filterMap.put("分类", categoryList);
+        // 返回分类id集合，因为规格参数的聚合的条件，需要去数据库中查询规格名称来拼接
+        return categoryIds;
     }
 
     /**
