@@ -1,14 +1,21 @@
 package com.leyou.page.controller;
 
+import com.leyou.page.service.PageService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Map;
+
 @Slf4j
 @Controller
 public class PageController {
+
+    @Autowired
+    private PageService pageService;
 
     /**
      * 跳转到商品详情页
@@ -19,13 +26,8 @@ public class PageController {
     public String item(@PathVariable("spuId") Long spuId,Model model){
         log.info("进来了===>{}", spuId);
         // ========================================
-        model.addAttribute("categories", null); // 三级分类对象集合
-        model.addAttribute("brand", null); // 品牌对象
-        model.addAttribute("spuName", null);// spu的名称
-        model.addAttribute("subTitle", null);// spu的副标题
-        model.addAttribute("detail", null);// SpuDetail对象
-        model.addAttribute("skus", null);// spu对应的sku的集合
-        model.addAttribute("specs", null);// 规格参数列表： 先查出spec_group: 然后在组内添加一个 params 的属性
+        Map<String, Object> data = pageService.findGoodsData(spuId);
+        model.addAllAttributes(data);
         // ========================================
         return "item";
     }

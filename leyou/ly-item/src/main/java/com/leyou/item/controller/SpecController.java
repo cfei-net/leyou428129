@@ -1,5 +1,6 @@
 package com.leyou.item.controller;
 
+import com.leyou.item.dto.SpecGroupDTO;
 import com.leyou.item.entity.SpecGroup;
 import com.leyou.item.entity.SpecParam;
 import com.leyou.item.service.SpecService;
@@ -45,5 +46,17 @@ public class SpecController {
     ) {
         List<SpecParam> specParamList = specService.findSpecParamByGroupId(gid, cid, searching);
         return ResponseEntity.ok(specParamList);
+    }
+
+
+    /**
+     * 根据分类id查询规格组及其组内的参数
+     * @param cid
+     * @return
+     */
+    @GetMapping("/spec/of/category")
+    public ResponseEntity<List<SpecGroupDTO>> findSpecGroupByCid(@RequestParam("id") Long cid){
+        List<SpecGroupDTO> specGroupList = specService.findSpecGroupByCid(cid);
+        return ResponseEntity.ok(specGroupList);
     }
 }

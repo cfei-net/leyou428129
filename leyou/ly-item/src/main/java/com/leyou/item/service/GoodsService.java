@@ -204,4 +204,27 @@ public class GoodsService {
         }
         return spuDetail;
     }
+
+    /**
+     * 根据id查询spu：  返回的对象包含了SpuDetail和Sku列表
+     * @param spuId
+     * @return
+     */
+    public SpuDTO findSpuById(Long spuId) {
+        // 1、先查询spu
+        Spu spu = spuMapper.selectByPrimaryKey(spuId);
+        if(spu == null){
+            throw new LyException(ExceptionEnum.GOODS_NOT_FOUND);
+        }
+        // 2、转成DTO
+        SpuDTO spuDTO = BeanHelper.copyProperties(spu, SpuDTO.class);
+        // 3、查询SpuDetail
+        SpuDetail spuDetail = findSpuDetailBySpuID(spuId);
+        spuDTO.setSpuDetail(spuDetail);
+        // 4、查询Sku列表
+        List<Sku> skuList = findSkuBySpuID(spuId);
+        spuDTO.setSkus(skuList);
+        // 5、返回
+        return spuDTO;
+    }
 }

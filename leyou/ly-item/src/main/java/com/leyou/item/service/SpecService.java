@@ -2,6 +2,8 @@ package com.leyou.item.service;
 
 import com.leyou.common.exception.LyException;
 import com.leyou.common.exception.enums.ExceptionEnum;
+import com.leyou.common.utils.BeanHelper;
+import com.leyou.item.dto.SpecGroupDTO;
 import com.leyou.item.entity.SpecGroup;
 import com.leyou.item.entity.SpecParam;
 import com.leyou.item.mapper.SpecGroupMapper;
@@ -13,7 +15,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(
@@ -67,5 +72,54 @@ public class SpecService {
         }
         // 返回
         return specParamList;
+    }
+
+    /**
+     * 根据分类id查询规格组及其组内的参数
+     * @param cid
+     * @return
+     */
+    public List<SpecGroupDTO> findSpecGroupByCid(Long cid) {
+        // 根据分类id查询组
+        List<SpecGroup> specGroupList = findSpecGroupByCategoryId(cid);
+        // 转成DTO
+        List<SpecGroupDTO> specGroupDTOList = BeanHelper.copyWithCollection(specGroupList, SpecGroupDTO.class);
+
+        // 查询规格参数的方式三：通过分类id一次性查询出来 【高级】 ：  只有两条
+        List<SpecParam> specParams = findSpecParamByGroupId(null, cid, null);
+        // 使用jdk1.8的流的特性： 分组  :  返回的是map  ：  key： groupId规格组的id  ， value:  规格参数list集合
+        Map<Long, List<SpecParam>> specMap = specParams.stream().collect(Collectors.groupingBy(SpecParam::getGroupId));
+        // 迭代组
+        for (SpecGroupDTO groupDTO : specGroupDTOList) {
+            groupDTO.setParams(specMap.get(groupDTO.getId()));
+        }
+
+
+
+        // 查询规格参数的方式二：通过分类id一次性查询出来 【中级】 ：  只有两条
+        /*List<SpecParam> specParams = findSpecParamByGroupId(null, cid, null);
+        // 第一层for循环先迭代组
+        for (SpecGroupDTO groupDTO : specGroupDTOList) {
+            // 第二层for循环： 规格参数：  通过规格参数的组id和groupDTO的id做对比
+            for (SpecParam specParam : specParams) {
+                if(specParam.getGroupId().equals(groupDTO.getId())){
+                    // 如果进入这里，说明规格参数属于这个规格组
+                    if(groupDTO.getParams() == null){
+                        groupDTO.setParams(new ArrayList<SpecParam>());
+                    }
+                    groupDTO.getParams().add(specParam);
+                }
+            }
+        }*/
+
+
+
+        // 查询规格参数的方式一： 根据组的id查询规格参数 : 入门级写法： 在for循环操作数据库  ：  一堆sql
+        /*for (SpecGroupDTO specGroupDTO : specGroupDTOList) {
+            List<SpecParam> specParams = findSpecParamByGroupId(specGroupDTO.getId(), null, null);
+            specGroupDTO.setParams(specParams);
+        }*/
+        //返回
+        return specGroupDTOList;
     }
 }

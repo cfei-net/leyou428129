@@ -3,6 +3,7 @@ package com.leyou.item.client;
 import com.leyou.common.pojo.PageResult;
 import com.leyou.item.dto.BrandDTO;
 import com.leyou.item.dto.CategoryDTO;
+import com.leyou.item.dto.SpecGroupDTO;
 import com.leyou.item.dto.SpuDTO;
 import com.leyou.item.entity.Sku;
 import com.leyou.item.entity.SpecParam;
@@ -86,4 +87,19 @@ public interface ItemClient {
     @GetMapping("/brand/{id}")
     public BrandDTO findBrandById(@PathVariable("id") Long id);
 
+    /**
+     * 根据id去查询spu信息
+     * @param spuId
+     * @return
+     */
+    @GetMapping("/spu/{id}")
+    public SpuDTO findSpuById(@PathVariable("id") Long spuId);
+
+    /**
+     * 根据分类id查询规格组及其组内的参数
+     * @param cid
+     * @return
+     */
+    @GetMapping("/spec/of/category")
+    public List<SpecGroupDTO> findSpecGroupByCid(@RequestParam("id") Long cid);
 }
