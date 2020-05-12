@@ -2,6 +2,7 @@ package com.leyou.item.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.leyou.common.constants.MQConstants;
 import com.leyou.common.exception.LyException;
 import com.leyou.common.exception.enums.ExceptionEnum;
 import com.leyou.common.pojo.PageResult;
@@ -17,6 +18,7 @@ import com.leyou.item.mapper.SpuDetailMapper;
 import com.leyou.item.mapper.SpuMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,9 @@ public class GoodsService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private AmqpTemplate amqpTemplate;
 
     /**
      * 根据条件分页查询商品：spu
@@ -173,6 +178,13 @@ public class GoodsService {
         if (count != 1){
             throw new LyException(ExceptionEnum.UPDATE_OPERATION_FAIL);
         }
+
+        // 发送mq消息：生成或者删除    商品的索引和静态页
+        amqpTemplate.convertAndSend(
+                MQConstants.Exchange.ITEM_EXCHANGE_NAME, // 交换机名称
+                (saleable ? MQConstants.RoutingKey.ITEM_UP_KEY :MQConstants.RoutingKey.ITEM_DOWN_KEY), // 路由key
+                spuId   // 发送商品的id即可
+                );
     }
 
     /**

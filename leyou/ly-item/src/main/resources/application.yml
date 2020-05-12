@@ -1,6 +1,18 @@
 server:
   port: 8081
 spring:
+  rabbitmq:
+    host: 127.0.0.1
+    username: leyou129
+    password: 123456
+    virtual-host: /leyou129
+    template:
+      retry:  #重试策略
+        enabled: true  # 开启重试策略
+        initial-interval: 10000ms  #第一次重试的时间
+        max-interval: 80000ms # 最大的重试时间
+        multiplier: 2  #每次重试时间的 间隔数：  第一次10秒     第二次2*10     第三次2*2*10
+    publisher-confirms: true  #发布确认
   application:
     name: item-service
   datasource:

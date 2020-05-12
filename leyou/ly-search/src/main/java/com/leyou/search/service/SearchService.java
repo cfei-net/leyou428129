@@ -387,4 +387,21 @@ public class SearchService {
     }
 
 
+    /**
+     * 创建ES索引
+     * @param spuId
+     */
+    public void createIndex(Long spuId) {
+        SpuDTO spuDTO = itemClient.findSpuById(spuId);
+        Goods goods = buildGoods(spuDTO);
+        goodsRepository.save(goods);
+    }
+
+    /**
+     * 删除索引
+     * @param spuId
+     */
+    public void deleteIndex(Long spuId) {
+        goodsRepository.deleteById(spuId);
+    }
 }

@@ -90,4 +90,20 @@ public class PageService {
             throw new LyException(ExceptionEnum.FILE_WRITER_ERROR);
         }
     }
+
+    /**
+     * 删除静态页
+     * @param spuId
+     */
+    public void deleteStaicItemHtml(Long spuId) {
+        // 目录
+        File file = new File(itemDir);
+        // 文件名称
+        String fileName = spuId + ".html";
+        // 删除文件
+        File itemHtml = new File(file, fileName);
+        if(itemHtml.exists()){
+            itemHtml.delete();
+        }
+    }
 }

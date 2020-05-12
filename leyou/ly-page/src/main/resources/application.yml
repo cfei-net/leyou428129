@@ -1,6 +1,11 @@
 server:
   port: 8084
 spring:
+  rabbitmq:
+    host: localhost
+    username: leyou129
+    password: 123456
+    virtual-host: /leyou129
   thymeleaf:
     cache: false  #除去缓存
   application:
