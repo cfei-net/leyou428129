@@ -10,4 +10,7 @@ public class LyConstants {
 
     // 图片回显的url地址
     public static final String IMAGE_URL = "http://localhost/brand-logo/";
+
+    /*注册时短信验证码在redis中的key的前缀*/
+    public static final String USER_VERFYCODE_PRE = "user:verfycode:";
 }

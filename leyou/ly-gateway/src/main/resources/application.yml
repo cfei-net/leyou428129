@@ -49,6 +49,12 @@ spring:
             - Path=/api/search/**
           filters:
             - StripPrefix=2
+        - id: user-service   # 用户微服务
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=2
 eureka:
   client:
     service-url:
