@@ -7,9 +7,11 @@ import com.leyou.user.entity.User;
 import com.leyou.user.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,9 @@ public class UserService {
 
     @Autowired
     private AmqpTemplate amqpTemplate;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     /**
      * 实现用户数据的校验，主要包括对：手机号、用户名的唯一性校验。
@@ -82,5 +87,27 @@ public class UserService {
         user.put("code", code);
         // 4、mq发送
         amqpTemplate.convertAndSend(SMS_EXCHANGE_NAME, VERIFY_CODE_KEY, user);
+    }
+
+    /**
+     * 用户注册接口
+     * @param user  用户接参
+     * @param code  短信验证码
+     */
+    public void register(User user, String code) {
+        // 1、从redis中获取保存好的短信验证码： 有效期5分钟
+        String key = USER_VERFYCODE_PRE + user.getPhone();
+        String cacheCode = redisTemplate.opsForValue().get(key);
+        // 2、判断页面的短信验证码和redis中的验证码是否一致
+        if(!StringUtils.equals(cacheCode, code)){
+            throw new LyException(ExceptionEnum.INVALID_VERIFY_CODE);
+        }
+        // 3、对用户的明文的密码进行加密
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 4、保存用户的数据
+        int count = userMapper.insertSelective(user);
+        if(count != 1){
+            throw new LyException(ExceptionEnum.INSERT_OPERATION_FAIL);
+        }
     }
 }
