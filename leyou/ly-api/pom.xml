@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>ly-item-api</module>
+        <module>ly-user-api</module>
     </modules>
     <dependencies>
         <!--feign接口的类上要添加feign注解所需的包-->

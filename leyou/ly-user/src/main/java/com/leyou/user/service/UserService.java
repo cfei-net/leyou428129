@@ -3,6 +3,8 @@ package com.leyou.user.service;
 import com.leyou.common.constants.LyConstants;
 import com.leyou.common.exception.LyException;
 import com.leyou.common.exception.enums.ExceptionEnum;
+import com.leyou.common.utils.BeanHelper;
+import com.leyou.user.dto.UserDTO;
 import com.leyou.user.entity.User;
 import com.leyou.user.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -110,4 +112,30 @@ public class UserService {
             throw new LyException(ExceptionEnum.INSERT_OPERATION_FAIL);
         }
     }
+
+    /**
+     * 根据用户名和密码查询用户
+     * @param username  用户名
+     * @param password  密码
+     * @return          用户的DTO对象
+     */
+    public UserDTO queryUserByUsernameAndPwd(String username, String password) {
+        // 1、现根据用户名去查询用户
+        User record = new User();
+        record.setUsername(username);
+        User user = userMapper.selectOne(record);
+        // 2、判空
+        if(user == null){
+            log.warn("【用户微服务】查询用户失败，用户为空，查询参数：{}",username);
+            throw new LyException(ExceptionEnum.INVALID_USERNAME_PASSWORD);
+        }
+        // 3、判断密码是否一致
+        if(!passwordEncoder.matches(password, user.getPassword())){
+            log.warn("【用户微服务】用户查询成功，但是密码错误，查询参数：{}",username);
+            throw new LyException(ExceptionEnum.INVALID_USERNAME_PASSWORD);
+        }
+        // 4、返回DTO对象
+        return BeanHelper.copyProperties(user, UserDTO.class);
+    }
+
 }
