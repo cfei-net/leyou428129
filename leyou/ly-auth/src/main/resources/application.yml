@@ -3,6 +3,9 @@ server:
 spring:
   application:
     name: auth-service
+  redis:
+    host: 127.0.0.1
+    port: 6379
 eureka:
   client:
     service-url:
@@ -14,3 +17,12 @@ logging:
   level:    #  debug   info  warn   error
     root: info   #其他的日志级别都是info
     com.leyou: debug # 我们乐优用debug
+ly:
+  jwt:
+    pubKeyPath: D:\leyou-code\428129\rsakey\leyou_key.pub # 公钥地址
+    priKeyPath: D:\leyou-code\428129\rsakey\leyou_key # 私钥地址
+    cookie:
+      expire: 30 #过期时间设置 单位分钟
+      refreshTime: 10 # 判断token如果有效期还剩下10分钟内，我们重新生成一个新的token返回
+      cookieName: LY_TOKEN # cookie名称
+      cookieDomain: leyou.com # cookie的域

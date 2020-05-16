@@ -35,8 +35,11 @@ public class UserController {
             @ApiResponse(code = 400, message = "请求参数有误，比如type不是指定值")
     })
     public ResponseEntity<Boolean> checkData(
-            @ApiParam(value = "要校验的数据", example = "xiaofeifei") @PathVariable("data") String data,
-            @ApiParam(value = "数据类型，1：用户名，2：手机号", example = "1") @PathVariable("type") Integer type){
+            @ApiParam(value = "要校验的数据", example = "xiaofeifei")
+            @PathVariable("data") String data,
+            @ApiParam(value = "数据类型，1：用户名，2：手机号", example = "1")
+            @PathVariable("type") Integer type)
+    {
         Boolean flag = userService.checkData(data, type);
         return ResponseEntity.ok(flag);
     }

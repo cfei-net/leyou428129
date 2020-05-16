@@ -25,4 +25,14 @@ public class LyExceptionController {
     public ResponseEntity<ExceptionResult> handlerLyException(LyException e){
         return ResponseEntity.status(e.getStatus()).body(new ExceptionResult(e));
     }
+
+    /**
+     * 全局异常处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(Exception.class) //这个注解告诉springmvc处理什么样的异常
+    public ResponseEntity<ExceptionResult> handlerException(Exception e){
+        return ResponseEntity.status(400).body(new ExceptionResult(400, "【请求异常】"+e.getMessage()));
+    }
 }
