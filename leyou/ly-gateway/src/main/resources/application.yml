@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: api-gateway
+  task:
+    scheduling:
+      pool:
+        size: 2
   cloud:
     gateway:
       globalcors:
@@ -61,6 +65,7 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=2
+
 eureka:
   client:
     service-url:
@@ -69,3 +74,16 @@ eureka:
     registry-fetch-interval-seconds: 5  #  从eureka服务器注册表中获取注册信息的时间间隔（s），默认为30秒
     instance-info-replication-interval-seconds: 5 # 实例信息替换的时间
     initial-instance-info-replication-interval-seconds: 5 #初始化实例替换的时间
+ly:
+  jwt:
+    pubKeyPath: D:\leyou-code\428129\rsakey\leyou_key.pub # 公钥地址
+    cookie:
+      cookieName: LY_TOKEN # cookie名称
+  filter:
+    allowPaths:
+      - /api/auth/login
+      - /api/search
+      - /api/user/register
+      - /api/user/check
+      - /api/user/code
+      #- /api/item
