@@ -3,11 +3,13 @@ package com.leyou.geteway.filter;
 import com.leyou.common.auth.pojo.Payload;
 import com.leyou.common.auth.pojo.UserInfo;
 import com.leyou.common.auth.utils.JwtUtils;
+import com.leyou.common.constants.LyConstants;
 import com.leyou.common.exception.LyException;
 import com.leyou.common.exception.enums.ExceptionEnum;
 import com.leyou.common.utils.JsonUtils;
 import com.leyou.geteway.config.FilterProperties;
 import com.leyou.geteway.config.JwtProperties;
+import com.leyou.geteway.task.AppTokenScheduled;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,12 @@ public class AuthFilter implements GlobalFilter, Ordered {
     private FilterProperties filterProp;
 
     /**
+     * 定时任务申请到的微服务自己的token是保存在这个类中的
+     */
+    @Autowired
+    private AppTokenScheduled appTokenScheduled;
+
+    /**
      * 拦截所有请求
      * @param exchange ： 交换机
      * @param chain    ： 过滤器链
@@ -50,6 +58,13 @@ public class AuthFilter implements GlobalFilter, Ordered {
         log.info("【网关过滤器】执行了.......");
         // 0、获取request
         ServerHttpRequest request = exchange.getRequest();
+        //============================================================================
+        // 放行前，把申请到的token放入到header中
+        // 1、构建一个新的请求对象，这个请求对象依赖于旧的请求对象
+        request = request.mutate().header(LyConstants.APP_TOKEN_HEADER, appTokenScheduled.getToken()).build();
+        // 2、把请求放入交换机
+        exchange = exchange.mutate().request(request).build();
+        //============================================================================
 
         // 0.1 判断是否是白名单
         String path = request.getURI().getPath();// 访问的路径

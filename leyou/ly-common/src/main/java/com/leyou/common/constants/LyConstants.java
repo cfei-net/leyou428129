@@ -13,4 +13,7 @@ public class LyConstants {
 
     /*注册时短信验证码在redis中的key的前缀*/
     public static final String USER_VERFYCODE_PRE = "user:verfycode:";
+
+    /*所有微服务发起请求时携带的token存放的头信息的key*/
+    public static final String APP_TOKEN_HEADER = "APP_TOKEN_HEADER";
 }

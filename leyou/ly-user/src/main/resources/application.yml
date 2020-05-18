@@ -40,3 +40,8 @@ ly:
     crypt:
       secret: ${random.uuid} # 随机的密钥，使用uuid
       strength: 10 # 加密强度4~31，决定了密码和盐加密时的运算次数，超过10以后加密耗时会显著增加
+  jwt:
+    pubKeyPath: D:\leyou-code\428129\rsakey\leyou_key.pub # 公钥地址
+    app:
+      id: 1
+      password: user-service

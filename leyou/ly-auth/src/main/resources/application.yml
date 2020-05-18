@@ -41,6 +41,8 @@ ly:
       cookieDomain: leyou.com # cookie的域
     app:
       expire: 1500 #过期时间设置 单位分钟
+      id: 10
+      password: auth-service
   encoder:
     crypt:
       secret: ${random.uuid}

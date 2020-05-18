@@ -1,5 +1,6 @@
 package com.leyou.user.controller;
 
+import com.leyou.common.constants.LyConstants;
 import com.leyou.common.exception.LyException;
 import com.leyou.user.dto.UserDTO;
 import com.leyou.user.entity.User;
@@ -12,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.stream.Collectors;
 
@@ -79,6 +81,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Autowired
+    private HttpServletRequest request;
+
     /**
      * 根据用户名和密码查询用户
      * @param username  用户名
@@ -91,6 +96,7 @@ public class UserController {
             @RequestParam("username") String username,
             @RequestParam("password") String password
     ){
+        System.out.println("=========>"+request.getHeader(LyConstants.APP_TOKEN_HEADER));
         UserDTO userDTO = userService.queryUserByUsernameAndPwd(username,password);
         return ResponseEntity.ok(userDTO);
     }

@@ -1,12 +1,10 @@
-package com.leyou.auth.config;
+package com.leyou.user.config;
 
 import com.leyou.common.auth.utils.RsaUtils;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 
 @Data
@@ -14,30 +12,17 @@ import java.security.PublicKey;
 public class JwtProperties {
 
     private String pubKeyPath;
-    private String priKeyPath;
 
-    // 公钥和私钥：在什么时候赋值
+    // 公钥
     private PublicKey publicKey;
-    private PrivateKey privateKey;
 
-    private CookiePojo cookie = new CookiePojo();
 
+    // app 相关配置：
     private AppTokenPojo app = new AppTokenPojo();
-
-
     @Data
     public class AppTokenPojo{
-        private Integer expire;
         private Long id; // 服务id
         private String password; // 微服务自己的密码
-    }
-
-    @Data
-    public class CookiePojo {
-        private Integer expire;
-        private Integer refreshTime;
-        private String cookieName;
-        private String cookieDomain;
     }
 
     /**
@@ -45,7 +30,6 @@ public class JwtProperties {
      */
     @PostConstruct
     public void initMethod() throws Exception {
-        this.privateKey = RsaUtils.getPrivateKey(priKeyPath);
         this.publicKey = RsaUtils.getPublicKey(pubKeyPath);
     }
 }
