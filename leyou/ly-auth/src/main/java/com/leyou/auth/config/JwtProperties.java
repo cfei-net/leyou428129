@@ -22,6 +22,14 @@ public class JwtProperties {
 
     private CookiePojo cookie = new CookiePojo();
 
+    private AppTokenPojo app = new AppTokenPojo();
+
+
+    @Data
+    public class AppTokenPojo{
+        private Integer expire;
+    }
+
     @Data
     public class CookiePojo {
         private Integer expire;

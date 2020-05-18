@@ -58,4 +58,18 @@ public class AuthController {
         authService.logout(request,response);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    /**
+     * 生成token返回给每个微服务
+     * @param id        ： 服务id
+     * @param password  ： 微服务自己的密码
+     * @return          ： 返回JWT
+     */
+    @GetMapping("/authorization")
+    public ResponseEntity<String> authorization(@RequestParam("id") Long id,
+                                                @RequestParam("secret") String password
+                                                ){
+        String token = authService.authorize(id, password);
+        return ResponseEntity.ok(token);
+    }
 }

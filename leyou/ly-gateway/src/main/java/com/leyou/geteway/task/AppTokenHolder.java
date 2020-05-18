@@ -5,10 +5,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
+ * 做定时任务的测试
  * 定时任务是一个线程池： 默认是一个线程： 一般线程数和定时任务的方法数一样
  */
 @Slf4j
-@Component
+//@Component
 public class AppTokenHolder {
 
     private  int count = 1;

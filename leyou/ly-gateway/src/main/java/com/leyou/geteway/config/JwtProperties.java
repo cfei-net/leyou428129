@@ -19,10 +19,20 @@ public class JwtProperties {
 
     private CookiePojo cookie = new CookiePojo();
 
+    // app 相关配置：
+    private AppTokenPojo app = new AppTokenPojo();
+    @Data
+    public class AppTokenPojo{
+        private Long id; // 服务id
+        private String password; // 微服务自己的密码
+    }
+
     @Data
     public class CookiePojo {
         private String cookieName;
     }
+
+
 
     /**
      * 这个方法等到所有：@ConfigurationProperties(prefix = "ly.jwt")属性注入之后，才去加载

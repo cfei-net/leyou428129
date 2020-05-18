@@ -79,6 +79,9 @@ ly:
     pubKeyPath: D:\leyou-code\428129\rsakey\leyou_key.pub # 公钥地址
     cookie:
       cookieName: LY_TOKEN # cookie名称
+    app:
+      id: 7
+      password: api-gateway
   filter:
     allowPaths:
       - /api/auth/login

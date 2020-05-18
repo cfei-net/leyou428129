@@ -6,6 +6,19 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver  # 新版本的驱动
+    url: jdbc:mysql:///leyou129?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: passw0rd
+mybatis:
+  type-aliases-package: com.leyou.item.entity
+  configuration:
+    map-underscore-to-camel-case: true  #驼峰映射
+  mapper-locations: mapper/*.xml
+# 通用mapper的关键字增强: 如果碰到和mysql相关的关键字，会自动给关键字加上反引号
+mapper:
+  wrap-keyword: "`{0}`"
 eureka:
   client:
     service-url:
@@ -26,3 +39,9 @@ ly:
       refreshTime: 10 # 判断token如果有效期还剩下10分钟内，我们重新生成一个新的token返回
       cookieName: LY_TOKEN # cookie名称
       cookieDomain: leyou.com # cookie的域
+    app:
+      expire: 1500 #过期时间设置 单位分钟
+  encoder:
+    crypt:
+      secret: ${random.uuid}
+      strength: 10
