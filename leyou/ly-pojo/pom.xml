@@ -16,6 +16,7 @@
         <module>ly-search-pojo</module>
         <module>ly-user-pojo</module>
         <module>ly-auth-pojo</module>
+        <module>ly-cart-pojo</module>
     </modules>
     <dependencies>
         <dependency>

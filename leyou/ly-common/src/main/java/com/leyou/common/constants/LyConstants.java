@@ -16,4 +16,7 @@ public class LyConstants {
 
     /*所有微服务发起请求时携带的token存放的头信息的key*/
     public static final String APP_TOKEN_HEADER = "APP_TOKEN_HEADER";
+
+    /*用户购物车对象在redis中的key的前缀*/
+    public static final String CART_PRE = "ly:cart:uid:";
 }

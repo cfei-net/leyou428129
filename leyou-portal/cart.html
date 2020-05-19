@@ -334,7 +334,7 @@
         // 查询购物车
         this.isLogin().then(() => {
           // 判断本地未登录购物车是否存在，
-          /*const carts = ly.store.get("carts") || [];
+          const carts = ly.store.get("carts") || [];
           if (carts.length > 0) {
             // 如果存在，发到后台，添加到redis，删除本地购物车
             ly.http.post("/cart/list", carts).then(() => {
@@ -348,9 +348,9 @@
           } else {
             // 查询购物车
             this.handleLoginCarts();
-          }*/
+          }
 		  // 查询购物车
-		  this.handleLoginCarts();
+		  // this.handleLoginCarts(); // 删除这行
         }).catch(() => {
           // 未登录
           console.log("未登录")
