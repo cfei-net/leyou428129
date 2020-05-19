@@ -1,0 +1,20 @@
+server:
+  port: 8088
+spring:
+  application:
+    name: cart-service
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:10086/eureka
+  instance:
+    ip-address: 127.0.0.1  #指定实例的地址
+    prefer-ip-address: true #上报给eureka的是ip，默认是主机名
+logging:
+  level:    #  debug   info  warn   error
+    root: info   #其他的日志级别都是info
+    com.leyou: debug # 我们乐优用debug

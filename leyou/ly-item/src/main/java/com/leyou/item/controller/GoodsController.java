@@ -96,4 +96,15 @@ public class GoodsController {
         return ResponseEntity.ok(spuDTO);
     }
 
+    /**
+     * 根据sku的id集合查询sku的列表
+     * @param ids   sku的id集合，以逗号分隔
+     * @return      sku列表
+     */
+    @GetMapping("/sku/list")
+    public ResponseEntity<List<Sku>> findSkuListByIds(@RequestParam("ids") List<Long> ids){
+        List<Sku> skuList = goodsService.findSkuListByIds(ids);
+        return ResponseEntity.ok(skuList);
+    }
+
 }

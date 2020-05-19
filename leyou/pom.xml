@@ -20,6 +20,7 @@
         <module>ly-sms</module>
         <module>ly-user</module>
         <module>ly-auth</module>
+        <module>ly-cart</module>
     </modules>
     <!--打包方式： 聚合工程-->
     <packaging>pom</packaging>

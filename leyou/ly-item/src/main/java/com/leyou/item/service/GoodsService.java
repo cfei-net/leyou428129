@@ -239,4 +239,20 @@ public class GoodsService {
         // 5、返回
         return spuDTO;
     }
+
+    /**
+     * 根据sku的id集合查询sku的列表
+     * @param ids   sku的id集合，以逗号分隔
+     * @return      sku列表
+     */
+    public List<Sku> findSkuListByIds(List<Long> ids) {
+        // 批量查询
+        List<Sku> skuList = skuMapper.selectByIdList(ids);
+        // 判空
+        if(CollectionUtils.isEmpty(skuList)){
+            throw new LyException(ExceptionEnum.GOODS_NOT_FOUND);
+        }
+        // 返回
+        return skuList;
+    }
 }

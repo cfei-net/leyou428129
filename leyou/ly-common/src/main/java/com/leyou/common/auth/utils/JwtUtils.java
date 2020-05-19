@@ -6,11 +6,17 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoder;
+import io.jsonwebtoken.io.Decoders;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
+import java.io.UnsupportedEncodingException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -21,6 +27,9 @@ import java.util.UUID;
  *      4）获取token： 载荷中的泛型不指定
  */
 public class JwtUtils {
+
+    // Base64解码
+    private static final Decoder<String, byte[]> stringDecoder = Decoders.BASE64URL;
 
     private static final String JWT_PAYLOAD_USER_KEY = "user";
 
@@ -107,6 +116,24 @@ public class JwtUtils {
         Payload<T> claims = new Payload<>();
         claims.setId(body.getId());
         claims.setExpiration(body.getExpiration());
+        return claims;
+    }
+
+    /**
+     * 获取token中的载荷信息
+     *
+     * @param token     用户请求中的令牌
+     * @return 用户信息
+     */
+    public static <T> Payload<T> getInfoFromToken(String token, Class<T> userType) throws UnsupportedEncodingException {
+        String payloadStr = StringUtils.substringBetween(token, "."); // 获取两个点的中间的部分
+        byte[] bytes = stringDecoder.decode(payloadStr); // base64解码
+        String json = new String(bytes, "UTF-8"); // 把byte数组转成字符串：并指定编码
+        Map<String, String> map = JsonUtils.toMap(json, String.class, String.class); // 把对象转成map
+        Payload<T> claims = new Payload<>(); // 实例化载荷对象
+        claims.setId(map.get("jti")); // 设置token的id
+        claims.setExpiration(new Date(Long.valueOf(map.get("exp"))));// token的过期时间
+        claims.setUserInfo(JsonUtils.toBean(map.get("user"), userType)); // 用户信息
         return claims;
     }
 }

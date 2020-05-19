@@ -6,6 +6,7 @@ import com.leyou.common.auth.utils.JwtUtils;
 import com.leyou.common.auth.utils.RsaUtils;
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -78,5 +79,12 @@ public class RsaUtilsTest {
         System.out.println("====================================");
         System.out.println(payload);
 
+    }
+
+    @Test
+    public void testgetUserInfo() throws UnsupportedEncodingException {
+        String token = "eyJhbGciOiJSUzI1NiJ9.eyJ1c2VyIjoie1wiaWRcIjoyOSxcInVzZXJuYW1lXCI6XCJ4aWFvZmVpZmVpXCIsXCJyb2xlXCI6XCJhZG1pblwifSIsImp0aSI6IllqQTVNR1ZsTkdRdE5EWmlaQzAwTXpJekxXRmlZMkl0WmpBd01XSmlPV1E1TlRSaiIsImV4cCI6MTU4OTc5MDc0N30.WCpD3oSA9XPYMk4DTYRJ37sBMQH0y-rvv1RvUOzLL1jangrrTlfk2WAQBserHo5hFYeBPjgSHKDHaYCI-fWluMBdXa6AkVF8i6_ujOW9Eeiy0LroZ5RAdumbho8sMZNkoUxk6azxxm1CfNhMossg4XnY82w3oYztejQWglnsWV_0H3GUv9TbjinZMJGYlRcsF-UI5RnhNnDtE9UobJBxmYofKudAa7svKwsrCQdEWFU1UCnraWCX293vSiLCFbdn6kaOHziLM06KQFhOuL5wDCxXgQt3fem88101RbsULCjLpwLRFRq_6_ATWHCC9hXTq6UCjOMgcU8xl4eWnmAv4Q";
+        Payload<UserInfo> infoFromToken = JwtUtils.getInfoFromToken(token, UserInfo.class);
+        System.out.println(infoFromToken.getUserInfo());
     }
 }
